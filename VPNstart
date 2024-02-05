@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Function to exclude a process PID from Mullvad VPN split tunneling
+exclude_pid() {
+  local pid=$1
+  mullvad split-tunnel add $pid
+}
+
+# Function to display text in green
+display_green() {
+  local message=$1
+  echo -e "\e[1;32m$message\e[0m"
+}
+
+# Function to display text in red
+display_red() {
+  local message=$1
+  echo -e "\e[1;31m$message\e[0m"
+}
+
+# Function to exclude PIDs of a process from Mullvad VPN split tunneling
+exclude_pids() {
+  local process_name=$1
+  local pids=$(pgrep -f ${process_name}**)
+
+  if [[ -n $pids ]]; then
+    echo "${process_name} processes running with PIDs: $pids"
+
+    # Exclude each PID from Mullvad VPN split tunneling
+    IFS=$'\n' read -rd '' -a pid_array <<< "$pids"
+    for pid in "${pid_array[@]}"; do
+      exclude_pid $pid
+    done
+  else
+    echo "No ${process_name} processes running."
+  fi
+}
+
+# Exclude PIDs of vnc, plex, prowlarr, radarr, sonarr processes
+exclude_pids "vnc"
+exclude_pids "plex"
+exclude_pids "prowlarr"
+exclude_pids "radarr"
+exclude_pids "sonarr"
+
+# Start Mullvad VPN
+mullvad connect
+
+# Wait for 3 seconds
+sleep 3
+
+# Function to check the connection status of Mullvad VPN
+check_vpn_status() {
+  local status=$(mullvad status)
+  first_word=$(echo $status | cut -d ' ' -f1)
+  if [[ $first_word == "Connected" ]]; then
+    display_green "$status"
+  else
+    display_red "$status"
+  fi
+}
+
+# Check the connection status
+check_vpn_status
+
+# Loop until interrupted
+while true; do
+  read -n1 -p "Press any key to stop Mullvad VPN: " input
+  mullvad disconnect
+  break
+done
+
+# Wait for 3 seconds
+sleep 3
+
+# Check the final connection status
+check_vpn_status

@@ -76,3 +76,4 @@ sleep 3
 # Check the final connection status
 check_vpn_status
 # just a text comment
+#test comment

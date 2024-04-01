@@ -42,6 +42,8 @@ exclude_pids "plex"
 exclude_pids "prowlarr"
 exclude_pids "radarr"
 exclude_pids "sonarr"
+exclude_pids "ssh"
+exclude_pids "pihole"
 
 # Start Mullvad VPN
 mullvad connect
@@ -63,11 +65,25 @@ check_vpn_status() {
 # Check the connection status
 check_vpn_status
 
-# Loop until interrupted
+# Display the prompt once
+echo "Type 'disconnect' to stop Mullvad VPN: "
+
+# Loop until interrupted or disconnected
 while true; do
-  read -n1 -p "Press any key to stop Mullvad VPN: " input
-  mullvad disconnect
-  break
+  # Check the connection status
+  status=$(mullvad status)
+  first_word=$(echo $status | cut -d ' ' -f1)
+  if [[ $first_word != "Connected" ]]; then
+    display_red "Mullvad VPN disconnected externally. Exiting script."
+    exit 1
+  fi
+
+  # Read the input with a timeout
+  read -t 1 input
+  if [[ "$input" == "disconnect" ]]; then
+    mullvad disconnect
+    break
+  fi
 done
 
 # Wait for 3 seconds
@@ -75,5 +91,6 @@ sleep 3
 
 # Check the final connection status
 check_vpn_status
-# just a text comment
-#test comment
+
+# Exit the script
+exit 0

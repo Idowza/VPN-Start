@@ -3,7 +3,7 @@
 # Function to exclude a process PID from Mullvad VPN split tunneling
 exclude_pid() {
   local pid=$1
-  mullvad split-tunnel add $pid
+  mullvad split-tunnel add "$pid"
 }
 
 # Function to display text in green
@@ -21,7 +21,8 @@ display_red() {
 # Function to exclude PIDs of a process from Mullvad VPN split tunneling
 exclude_pids() {
   local process_name=$1
-  local pids=$(pgrep -f ${process_name}**)
+  local pids
+  pids=$(pgrep -f "${process_name}"**)
 
   if [[ -n $pids ]]; then
     echo "${process_name} processes running with PIDs: $pids"
@@ -29,7 +30,7 @@ exclude_pids() {
     # Exclude each PID from Mullvad VPN split tunneling
     IFS=$'\n' read -rd '' -a pid_array <<< "$pids"
     for pid in "${pid_array[@]}"; do
-      exclude_pid $pid
+      exclude_pid "$pid"
     done
   else
     echo "No ${process_name} processes running."
@@ -53,8 +54,9 @@ sleep 3
 
 # Function to check the connection status of Mullvad VPN
 check_vpn_status() {
-  local status=$(mullvad status)
-  first_word=$(echo $status | cut -d ' ' -f1)
+  local status
+  status=$(mullvad status)
+  first_word=$(echo "$status" | cut -d ' ' -f1)
   if [[ $first_word == "Connected" ]]; then
     display_green "$status"
   else
@@ -72,14 +74,14 @@ echo "Type 'disconnect' to stop Mullvad VPN: "
 while true; do
   # Check the connection status
   status=$(mullvad status)
-  first_word=$(echo $status | cut -d ' ' -f1)
+  first_word=$(echo "$status" | cut -d ' ' -f1)
   if [[ $first_word != "Connected" ]]; then
     display_red "Mullvad VPN disconnected externally. Exiting script."
     exit 1
   fi
 
   # Read the input with a timeout
-  read -t 1 input
+  read -r -t 1 input
   if [[ "$input" == "disconnect" ]]; then
     mullvad disconnect
     break

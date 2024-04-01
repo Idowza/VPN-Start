@@ -36,7 +36,7 @@ exclude_pids() {
   fi
 }
 
-# Exclude PIDs of vnc, plex, prowlarr, radarr, sonarr processes
+# Exclude PIDs specifice processes
 exclude_pids "vnc"
 exclude_pids "plex"
 exclude_pids "prowlarr"

@@ -45,6 +45,11 @@ exclude_pids "radarr"
 exclude_pids "sonarr"
 exclude_pids "ssh"
 exclude_pids "pihole"
+exclude_pids "audio"
+exclude_pids "qemu"
+exclude_pids "virt"
+exclude_pids "libvirtd"
+exclude_pids "bazarr"
 
 # Start Mullvad VPN
 mullvad connect

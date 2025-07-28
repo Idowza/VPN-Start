@@ -50,6 +50,8 @@ exclude_pids "qemu"
 exclude_pids "virt"
 exclude_pids "libvirtd"
 exclude_pids "bazarr"
+exclude_pids "Readarr"
+exclude_pids "transmission"
 
 # Start Mullvad VPN
 mullvad connect
